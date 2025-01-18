@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điều Khiển Động Cơ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Điều Khiển Động Cơ</h1>
+
+        <!-- Hiển thị trạng thái động cơ -->
+        <div id="motorStatus" class="alert alert-info text-center">Động cơ đang TẮT</div>
+
+        <!-- Nút bật/tắt động cơ -->
+        <div class="d-flex justify-content-center">
+            <button id="turnOnBtn" class="btn btn-success me-3">Bật Động Cơ</button>
+            <button id="turnOffBtn" class="btn btn-danger">Tắt Động Cơ</button>
+        </div>
+
+        <!-- Phản hồi từ server -->
+        <div id="response" class="mt-3"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Bật động cơ
+            $("#turnOnBtn").click(function() {
+                sendMotorControl(1);  // Gửi yêu cầu bật động cơ
+            });
+
+            // Tắt động cơ
+            $("#turnOffBtn").click(function() {
+                sendMotorControl(0);  // Gửi yêu cầu tắt động cơ
+            });
+
+            // Gửi yêu cầu bật/tắt động cơ
+            function sendMotorControl(status) {
+                $.ajax({
+                    url: "/send",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ message: { status: status } }),
+                    success: function(response) {
+                        updateMotorStatus(status);
+                        $("#response").html('<div class="alert alert-success">Trạng thái động cơ đã được cập nhật!</div>');
+                    },
+                    error: function(xhr, status, error) {
+                        $("#response").html('<div class="alert alert-danger">Có lỗi xảy ra: ' + xhr.responseJSON.error + '</div>');
+                    }
+                });
+            }
+
+            // Cập nhật trạng thái động cơ trên giao diện
+            function updateMotorStatus(status) {
+                if (status === 1) {
+                    $("#motorStatus").removeClass('alert-info').addClass('alert-success').text('Động cơ đang BẬT');
+                } else {
+                    $("#motorStatus").removeClass('alert-success').addClass('alert-info').text('Động cơ đang TẮT');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
